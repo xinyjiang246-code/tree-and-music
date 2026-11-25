@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>单树画法样张 · 方案 A</title>
+<style>
+  html,body{margin:0}
+  body{
+    background:#EDE7DB;color:#33402F;
+    font:12px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Songti SC",serif;
+    padding:22px 26px 18px;
+  }
+  header{display:flex;align-items:baseline;gap:16px;margin-bottom:12px}
+  h1{margin:0;font-size:15px;font-weight:500;letter-spacing:.14em}
+  header span{font-size:10px;letter-spacing:.14em;color:rgba(51,64,47,.55)}
+  .pair{display:flex;gap:22px;align-items:flex-start}
+  figure{margin:0}
+  figure canvas{
+    display:block;width:560px;height:680px;
+    border:1px solid rgba(51,64,47,.14);border-radius:6px;
+    background:#F2ECE1;
+  }
+  figcaption{
+    margin-top:8px;font-size:10px;letter-spacing:.1em;color:rgba(51,64,47,.62);
+  }
+  figcaption b{font-weight:500;color:#33402F}
+  .foot{margin-top:10px;max-width:1140px;font-size:9.5px;line-height:1.9;
+    letter-spacing:.05em;color:rgba(51,64,47,.48)}
+  body.single{padding:22px 26px}
+  body.single .pair figure:first-child{display:none}
+  body.single .pair{justify-content:flex-start}
+  body.single .foot{display:none}
+  .air{display:flex;align-items:center;gap:2px;margin-top:10px;
+    font-size:10px;letter-spacing:.12em;color:rgba(51,64,47,.55)}
+  .air span{margin-right:6px}
+  .air button{border:none;background:transparent;font:inherit;color:inherit;
+    padding:3px 8px;border-radius:999px;cursor:pointer;letter-spacing:.1em}
+  .air button:hover{background:rgba(51,64,47,.06)}
+  .air button.on{color:#33402F;background:rgba(51,64,47,.10)}
+</style>
+</head>
+<body>
+<header>
+  <h1>单棵树 · 画法样张</h1>
+  <span>同一颗种子 1758 · 同一套纸墨 · 同一尺寸 560×680</span>
+</header>
+<div class="pair">
+  <figure>
+    <canvas id="old" width="560" height="680"></canvas>
+    <figcaption><b>现状</b> · 骨架等宽描边 + 叶点（grove 里的画法）</figcaption>
+  </figure>
+  <figure>
+    <canvas id="new" width="560" height="680"></canvas>
+    <figcaption><b>方案 A</b> · 锥度与接合 + 三四级枝 + 叶团 + 统一左上来光</figcaption>
+  </figure>
+</div>
+<div class="air" id="air">
+  <span>空气</span>
+  <button data-w="wind" class="on">微风</button>
+  <button data-w="rain">下雨</button>
+  <button data-w="fog">起雾</button>
+</div>
+<div class="foot" id="foot"></div>
+<script src="forms.js"></script>
+<script src="tree-sample.js"></script>
+</body>
+</html>

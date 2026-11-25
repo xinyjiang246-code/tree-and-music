@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>单树 3D 原型 · 与 2D 并排</title>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+
+<style>
+  :root {
+    --paper: #F1EBE0;
+    --ink: #3B4034;
+    --muted: #8A8578;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 13px/1.6 -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
+  }
+  .wrap { padding: 22px 24px 26px; }
+  .head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
+  .head h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: .01em; }
+  .head span { color: var(--muted); font-size: 12px; }
+
+  .pair { display: flex; gap: 20px; align-items: flex-start; }
+  figure { margin: 0; }
+  figure .stage {
+    position: relative;
+    width: 560px; height: 680px;
+    background: var(--paper);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(70, 66, 55, .10);
+  }
+  figure img, figure canvas {
+    position: absolute; inset: 0; width: 560px; height: 680px; display: block;
+  }
+  #c3d { opacity: 0; transition: opacity .45s ease; }
+  #c3d.on { opacity: 1; }
+  figcaption { margin-top: 9px; color: var(--muted); font-size: 12px; }
+  figcaption b { color: var(--ink); font-weight: 600; }
+
+  .stats {
+    margin-top: 14px; color: var(--muted); font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stats b { color: var(--ink); font-weight: 600; }
+  .note { margin-top: 6px; color: var(--muted); font-size: 12px; max-width: 1140px; }
+
+  body.only3d .pair > figure.twod { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>单棵树 · 3D 原型（Three.js）</h1>
+    <span>同一颗种子 1758 · 同一画幅 560×680 · 几何来自现有 forms.js 骨架</span>
+  </div>
+
+  <div class="pair">
+    <figure class="twod">
+      <div class="stage"><img src="shots/tree2d-canvas.png" alt="2D 版本"></div>
+      <figcaption><b>2D</b> · 现行画法（纸面 + 椭圆叶团）</figcaption>
+    </figure>
+
+    <figure class="three-d">
+      <div class="stage">
+        <img id="ph" src="shots/tree2d-canvas.png" alt="占位">
+        <canvas id="c3d" width="560" height="680"></canvas>
+      </div>
+      <figcaption><b>3D</b> · 管状枝干 + 逐叶实例 + 方向光 + 接触阴影</figcaption>
+    </figure>
+  </div>
+
+  <div class="stats" id="stats">正在构建几何…</div>
+  <div class="note" id="note">
+    占位图是现行 2D 烘焙结果；首帧渲染完成后淡出。参数可用 <code>?q=high|mid|low</code> 切换，
+    <code>?only=3d</code> 只看右图。
+  </div>
+</div>
+
+<script src="forms.js"></script>
+<script type="module" src="tree3d.js"></script>
+</body>
+</html>

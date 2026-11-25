@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>树丛 · 树与音乐</title>
+<link rel="stylesheet" href="grove.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">上环 · 石墙细叶榕</div>
+  <div class="sub" id="sub">1 棵</div>
+</header>
+
+<div class="state" id="stateTag"></div>
+
+<canvas id="grove"></canvas>
+
+<nav class="steps" aria-label="树丛规模">
+  <a href="?n=1">1</a><a href="?n=3">3</a><a href="?n=8">8</a><a href="?n=20">20</a>
+  <span class="sep">|</span>
+  <a href="?n=8&layout=wild" data-layout="wild">自然林</a>
+  <a href="?n=8&layout=park" data-layout="park">公园</a>
+  <a href="?n=8&layout=street" data-layout="street">行道</a>
+  <span class="sep">|</span>
+  <button id="timeBtn" title="切到夜里">夜</button>
+  <button id="lifeToggle" class="on" aria-pressed="true">生物 · 开</button>
+</nav>
+
+<footer class="foot" id="foot"></footer>
+
+<script src="forms.js"></script>
+<script src="grove.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>树与音乐</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="stage"></canvas>
+
+<div class="grain"></div>
+
+<header class="top">
+  <div class="brand">树与音乐</div>
+  <div class="sub" id="treeLabel">还没放树进来</div>
+</header>
+
+<!-- 左侧竖排「数据感」小字 -->
+<div class="meta" id="meta" aria-hidden="true"></div>
+
+<!-- 空态 -->
+<div class="empty" id="empty">
+  <p class="hint">把一张树的照片拖进来<br><em>逆光、剪影最合适</em></p>
+  <button class="ghost" id="pickBtn">选一张</button>
+</div>
+
+<!-- 处理中 -->
+<div class="busy" id="busy" hidden>
+  <div class="bar"><i></i></div>
+  <span id="busyText">正在读这棵树的枝</span>
+</div>
+
+<!-- 底部控制 -->
+<div class="dock" id="dock">
+  <div class="row">
+    <div class="seg" role="tablist">
+      <button class="on" data-mode="listen">聆听这棵树</button>
+      <button data-mode="grow">跟着音乐亮起来</button>
+    </div>
+    <div class="seg small">
+      <button class="on" data-tint="gold">金</button>
+      <button data-tint="ink">蓝</button>
+    </div>
+    <button class="play" id="playBtn"><span id="playIcon">▶</span><span id="playWord">开始</span></button>
+  </div>
+
+  <div class="row sub-row">
+    <div class="slider">
+      <label for="thr">剪影阈值</label>
+      <input id="thr" type="range" min="12" max="82" value="42">
+    </div>
+    <div class="drop" id="audioDrop">拖一首歌进来（mp3/m4a/wav）</div>
+    <button class="ghost tiny" id="resetBtn">换一张</button>
+  </div>
+</div>
+
+<input type="file" id="fileImg" accept="image/*" hidden>
+<input type="file" id="fileAudio" accept="audio/*" hidden>
+
+<script src="data/basins.js"></script>
+<script src="app.js"></script>
+<script src="geo.js"></script>
+</body>
+</html>

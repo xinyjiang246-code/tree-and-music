@@ -1,0 +1,371 @@
+/* 世界树 · 3D 地球
+   三套配色 = 三种场景：paper（默认）/ night（深色模式）/ warm（纪念·导出）
+   所有颜色都从 :root[data-palette] 的变量走，换肤只改一处。 */
+
+:root{
+  --bg:#EDE6DA;
+  --fg:#243238;
+  --dim:rgba(36,50,56,.58);
+  --faint:rgba(36,50,56,.42);
+  --line:rgba(36,50,56,.18);
+  --btn-bg:rgba(255,252,246,.72);
+  --btn-bd:rgba(36,50,56,.20);
+  --btn-hover:rgba(36,50,56,.07);
+  --card-bg:rgba(250,246,238,.90);
+  --card-bd:rgba(36,50,56,.16);
+  --accent:#8C4A2B;
+  --accent-soft:rgba(140,74,43,.12);
+  --shadow:0 12px 40px rgba(70,58,40,.16);
+  --grain-blend:multiply;
+  --grain-op:.05;
+  --vignette:none;
+  --text-shadow:none;
+}
+
+:root[data-palette="night"]{
+  --bg:#05080C;
+  --fg:#F2EDE3;
+  --dim:rgba(242,237,227,.55);
+  --faint:rgba(242,237,227,.42);
+  --line:rgba(242,237,227,.16);
+  --btn-bg:rgba(20,28,34,.55);
+  --btn-bd:rgba(242,237,227,.18);
+  --btn-hover:rgba(127,200,255,.18);
+  --card-bg:rgba(24,32,38,.72);
+  --card-bd:rgba(242,237,227,.16);
+  --accent:#8FD3C4;
+  --accent-soft:rgba(143,211,196,.14);
+  --shadow:0 12px 40px rgba(0,0,0,.45);
+  --grain-blend:screen;
+  --grain-op:.04;
+  --vignette:radial-gradient(125% 125% at 50% 48%,transparent 66%,rgba(3,5,8,.42) 100%);
+  --text-shadow:0 1px 8px rgba(0,0,0,.5);
+}
+
+:root[data-palette="warm"]{
+  --bg:#0E0B08;
+  --fg:#F6EBD6;
+  --dim:rgba(246,235,214,.55);
+  --faint:rgba(246,235,214,.40);
+  --line:rgba(246,235,214,.16);
+  --btn-bg:rgba(30,22,14,.60);
+  --btn-bd:rgba(246,235,214,.18);
+  --btn-hover:rgba(230,193,140,.18);
+  --card-bg:rgba(26,19,12,.78);
+  --card-bd:rgba(246,235,214,.16);
+  --accent:#E6C18C;
+  --accent-soft:rgba(230,193,140,.14);
+  --shadow:0 12px 40px rgba(0,0,0,.5);
+  --grain-blend:screen;
+  --grain-op:.04;
+  --vignette:radial-gradient(120% 120% at 50% 46%,transparent 52%,rgba(6,4,2,.6) 100%);
+  --text-shadow:0 1px 8px rgba(0,0,0,.55);
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+html,body{
+  margin:0;padding:0;height:100%;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+  overflow:hidden;
+  transition:background .5s ease,color .5s ease;
+}
+
+#stage{position:fixed;inset:0;display:block;cursor:grab;touch-action:none}
+#stage:active{cursor:grabbing}
+#stage canvas{display:block}
+
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:2;
+  opacity:var(--grain-op);mix-blend-mode:var(--grain-blend);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.vignette{
+  position:fixed;inset:0;pointer-events:none;z-index:2;
+  background:var(--vignette);
+}
+
+.top{position:fixed;left:34px;top:30px;z-index:5;pointer-events:none}
+.brand{
+  font-family:"Songti SC","Source Han Serif SC",serif;
+  font-size:18px;letter-spacing:.42em;text-indent:.42em;font-weight:600;
+  color:var(--fg);text-shadow:var(--text-shadow);
+}
+.sub{margin-top:9px;font-size:10.5px;letter-spacing:.14em;color:var(--dim)}
+
+.count{
+  position:fixed;right:34px;top:34px;z-index:5;pointer-events:none;
+  font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.2em;
+  color:var(--dim);
+}
+
+.status{
+  position:fixed;left:50%;bottom:30px;transform:translateX(-50%);
+  z-index:5;font-size:11px;letter-spacing:.1em;color:var(--dim);
+  pointer-events:none;transition:opacity .4s;text-shadow:var(--text-shadow);
+}
+
+.toolbar{
+  position:fixed;left:34px;bottom:30px;z-index:6;
+  display:flex;align-items:center;gap:10px;
+}
+button{
+  font-family:inherit;color:var(--fg);
+  background:var(--btn-bg);
+  border:1px solid var(--btn-bd);border-radius:999px;
+  padding:9px 18px;font-size:12px;letter-spacing:.08em;cursor:pointer;
+  transition:background .25s,border-color .25s;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+button:hover{background:var(--btn-hover);border-color:var(--accent)}
+button:disabled{opacity:.35;cursor:default}
+button:disabled:hover{background:var(--btn-bg);border-color:var(--btn-bd)}
+.ghost.tiny{padding:6px 12px;font-size:11px}
+.danger:hover{border-color:#C4542E}
+
+.loc{display:flex;align-items:center;gap:6px}
+.loc input{
+  width:190px;padding:9px 14px;font-size:12px;letter-spacing:.04em;
+  color:var(--fg);background:var(--btn-bg);
+  border:1px solid var(--btn-bd);border-radius:999px;outline:none;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.loc input::placeholder{color:var(--faint)}
+.loc input:focus{border-color:var(--accent)}
+.loc-hint{font-size:10px;color:var(--dim);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- 小飞机 ---------- */
+.plane-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 12px 8px 11px;
+  border-color:var(--accent);color:var(--accent);
+  background:var(--accent-soft);
+}
+.plane-btn svg{width:15px;height:15px;fill:currentColor;stroke:none;transform:rotate(-8deg)}
+.plane-btn svg path+path{fill:none;stroke:var(--card-bg);stroke-width:1.3;stroke-linecap:round}
+.plane-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:17px;height:17px;padding:0 4px;border-radius:999px;
+  background:var(--accent);color:var(--bg);
+  font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:0;
+}
+.plane-btn.cooling{border-color:var(--btn-bd);color:var(--faint);background:var(--btn-bg)}
+.plane-btn.cooling .plane-badge{background:var(--line);color:var(--dim)}
+
+.plane-panel{
+  position:fixed;left:34px;bottom:84px;z-index:9;width:334px;padding:18px;
+  background:var(--card-bg);border:1px solid var(--card-bd);border-radius:18px;
+  box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  color:var(--fg);
+  animation:plane-in .28s cubic-bezier(.2,.8,.3,1) both;
+}
+.plane-panel[hidden]{display:none}
+@keyframes plane-in{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.plane-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.plane-title{font-family:"Songti SC",serif;font-size:15px;letter-spacing:.22em}
+.plane-sub{margin-top:5px;font-size:10px;letter-spacing:.05em;color:var(--dim)}
+.plane-segs{display:flex;gap:3px;padding:3px;border:1px solid var(--line);border-radius:999px}
+.plane-seg{
+  border:none;background:transparent;padding:4px 9px;border-radius:999px;
+  font-size:9.5px;letter-spacing:.03em;color:var(--dim);
+}
+.plane-seg:hover{background:var(--btn-hover)}
+.plane-seg.on{background:var(--accent-soft);color:var(--accent)}
+
+.plane-field{position:relative;margin-top:14px}
+.plane-field input{
+  width:100%;padding:10px 13px;font-size:12px;letter-spacing:.04em;
+  color:var(--fg);background:var(--btn-bg);
+  border:1px solid var(--line);border-radius:11px;outline:none;
+  font-family:inherit;
+}
+.plane-field input:focus{border-color:var(--accent)}
+.plane-field input::placeholder{color:var(--faint)}
+.plane-suggest{
+  position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:2;
+  max-height:168px;overflow-y:auto;
+  background:var(--card-bg);border:1px solid var(--card-bd);border-radius:11px;
+  box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+.plane-suggest[hidden]{display:none}
+.plane-suggest button{
+  display:block;width:100%;text-align:left;border:none;border-radius:0;
+  background:transparent;padding:8px 13px;font-size:11.5px;letter-spacing:.03em;
+}
+.plane-suggest button:hover{background:var(--accent-soft)}
+.plane-suggest button small{float:right;color:var(--faint);font-size:9.5px;font-family:ui-monospace,Menlo,monospace}
+
+.plane-modes{display:flex;gap:6px;margin-top:12px}
+.plane-mode{
+  flex:1;padding:7px 8px;font-size:10.5px;letter-spacing:.06em;
+  border-color:var(--line);color:var(--dim);background:transparent;
+}
+.plane-mode.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.plane-send{margin-top:9px}
+.plane-send[hidden]{display:none}
+.plane-send select{
+  width:100%;padding:8px 10px;font-family:inherit;font-size:11px;
+  color:var(--fg);background:var(--btn-bg);
+  border:1px solid var(--line);border-radius:10px;outline:none;
+}
+.plane-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:13px}
+.plane-note{flex:1;font-size:10px;line-height:1.6;color:var(--dim)}
+.plane-go{
+  flex:0 0 auto;padding:8px 16px;font-size:11px;letter-spacing:.14em;
+  color:var(--bg);background:var(--accent);border-color:var(--accent);
+}
+.plane-go:hover:not(:disabled){background:var(--accent);opacity:.86;border-color:var(--accent)}
+.plane-go:disabled{opacity:.32}
+.plane-next{margin-top:9px;font-size:9.5px;letter-spacing:.05em;color:var(--faint)}
+.plane-next:empty{display:none}
+
+.fly-layer{position:fixed;inset:0;z-index:12;pointer-events:none;overflow:hidden}
+.fly-layer[hidden]{display:none}
+.fly-plane{
+  position:absolute;left:0;top:0;width:26px;height:26px;
+  fill:var(--accent);filter:drop-shadow(0 3px 8px rgba(0,0,0,.22));
+  will-change:transform,opacity;
+}
+.fly-plane path+path{fill:none;stroke:var(--bg);stroke-width:1.3;stroke-linecap:round}
+.fly-trail{
+  position:absolute;inset:0;opacity:0;
+  background:radial-gradient(60% 40% at 46% 18%,var(--accent-soft),transparent 70%);
+  transition:opacity .8s ease;
+}
+.fly-trail.on{opacity:1}
+
+.card-flight{
+  margin-top:9px;padding:7px 10px;border-left:2px solid var(--accent);
+  background:var(--accent-soft);border-radius:0 7px 7px 0;
+  font-size:10px;line-height:1.6;color:var(--dim);letter-spacing:.04em;
+}
+.card-flight[hidden]{display:none}
+
+.card{
+  position:fixed;right:34px;top:50%;transform:translateY(-50%) translateX(20px);
+  z-index:7;width:232px;padding:20px;
+  background:var(--card-bg);
+  border:1px solid var(--card-bd);border-radius:18px;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:var(--shadow);
+  color:var(--fg);
+  opacity:0;pointer-events:none;
+  transition:opacity .4s ease,transform .4s ease;
+  /* 卡片再高也不能高过屏幕：内容在 card-body 里滚，× 永远留在卡顶 */
+  display:flex;flex-direction:column;max-height:calc(100vh - 72px);
+}
+.card.open{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
+.card-body{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-right:2px}
+.card-close{
+  position:absolute;right:12px;top:10px;z-index:2;
+  border:none;background:transparent;padding:4px 8px;
+  font-size:16px;color:var(--dim);
+}
+.card-img{
+  width:100%;aspect-ratio:4/3;
+  border-radius:10px;margin-bottom:12px;background:var(--btn-hover);
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+}
+.card-name{
+  font-family:"Songti SC",serif;font-size:15px;letter-spacing:.06em;
+}
+.card-tree{
+  margin-top:6px;font-size:11px;color:var(--accent);letter-spacing:.04em;
+}
+/* 这棵树的声音：与树页同一曲风 */
+.card-song{
+  margin-top:5px;font-size:10.5px;line-height:1.5;color:var(--dim);
+  letter-spacing:.03em;
+}
+/* 这是第几次、这一丛几棵：树没变，变的是周围这片林子 */
+.card-visit{
+  margin-top:8px;font-family:ui-monospace,Menlo,monospace;
+  font-size:10px;line-height:1.6;letter-spacing:.08em;color:var(--dim);
+}
+.card-grove-open{
+  display:block;width:100%;margin-top:9px;padding:7px 12px;
+  font-size:10.5px;letter-spacing:.1em;
+  color:var(--accent);background:transparent;border-color:var(--line);
+}
+.card-grove-open:hover{background:var(--accent-soft);border-color:var(--accent)}
+.card-grove{margin-top:8px}
+.card-grove[hidden]{display:none}
+.card-grove canvas{
+  display:block;width:100%;height:104px;border-radius:10px;
+  background:var(--accent-soft);
+}
+.card-grove-cap{
+  margin-top:6px;font-size:9.5px;line-height:1.65;
+  color:var(--faint);letter-spacing:.04em;
+}
+/* 「这一带常见」不是「只此一地」：标签老老实实说这是代表树种 */
+.card-species{
+  display:inline-block;margin-top:9px;padding:2px 8px;
+  border:1px solid var(--line);border-radius:999px;
+  font-size:9.5px;letter-spacing:.12em;color:var(--dim);
+}
+.card-imagery{
+  margin-top:9px;font-size:11px;line-height:1.75;color:var(--dim);
+  letter-spacing:.03em;
+}
+.card-loc{
+  margin-top:7px;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+  letter-spacing:.1em;color:var(--accent);
+}
+.card-loc-src{
+  margin-top:3px;font-size:10px;line-height:1.6;letter-spacing:.02em;color:var(--faint);
+}
+.card-loc-src b{color:var(--accent);font-weight:600}
+.card-loc-fix{
+  margin-top:6px;padding:0;border:0;background:none;cursor:pointer;
+  font:inherit;font-size:10px;letter-spacing:.03em;color:var(--faint);
+  text-decoration:underline;text-underline-offset:2px;
+}
+.card-loc-fix:hover{color:var(--accent)}
+.card-loc-edit{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.card-loc-edit[hidden]{display:none}
+.card-loc-edit input{
+  flex:1 1 150px;min-width:0;padding:6px 9px;border:1px solid var(--line);
+  border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:11px;
+}
+.card-loc-edit button{
+  padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:none;
+  color:var(--ink);font:inherit;font-size:11px;cursor:pointer;
+}
+.card-loc-edit button:first-of-type{border-color:var(--accent);color:var(--accent)}
+.card-loc-hint{flex:1 1 100%;font-size:10px;color:var(--faint);min-height:1em}
+.card-date{margin-top:5px;font-size:10px;color:var(--faint);letter-spacing:.1em}
+
+.card-listen{
+  display:block;width:100%;margin-top:14px;
+  background:var(--accent-soft);border-color:var(--accent);
+  color:var(--fg);padding:10px 14px;
+}
+.card-listen:hover{background:var(--accent-soft)}
+
+body.picking #stage{cursor:crosshair}
+body.picking .status{color:var(--accent)}
+
+@media (max-width:720px){
+  .top{left:20px;top:20px}
+  .count{right:20px;top:22px}
+  .toolbar{left:12px;right:12px;bottom:14px;flex-wrap:wrap;gap:8px}
+  .loc{flex:1 1 100%}
+  .loc input{flex:1;width:auto}
+  .plane-panel{
+    left:12px;right:12px;bottom:104px;width:auto;padding:15px;
+    max-height:calc(100vh - 190px);overflow-y:auto;
+  }
+  .card{
+    right:12px;top:auto;bottom:120px;width:auto;left:12px;
+    transform:translateY(20px);
+    /* 窄屏：卡片最高到按钮上方，顶部留出可点的地球 */
+    max-height:calc(100vh - 250px);
+  }
+  .card.open{transform:translateY(0)}
+  /* 照片只做预览，不靠它把卡片撑过一屏 */
+  .card-img{height:168px;aspect-ratio:auto}
+}

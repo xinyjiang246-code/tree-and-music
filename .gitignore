@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+._*
+
+# 依赖与构建缓存
+node_modules/
+__pycache__/
+*.pyc
+*.log

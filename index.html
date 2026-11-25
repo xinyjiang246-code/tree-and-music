@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>树与音乐</title>
+<!-- Three.js：本地 vendor，离线可用（生长演出的「年轮」交互） -->
+<script type="importmap">
+{
+  "imports": { "three": "./vendor/three/build/three.module.js" }
+}
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="product">
+
+<canvas id="stage"></canvas>
+
+<!-- 生长演出：全屏舞台 -->
+<div class="show-layer" id="showLayer" hidden aria-label="生长演出">
+  <div class="show-top">
+    <span class="show-brand">一棵树，从一首歌里长出来</span>
+    <button class="show-exit" id="showExit" aria-label="退出演出">退出 ×</button>
+  </div>
+  <div class="show-curtain in" id="showCurtain">
+    <div class="show-seed-line">一粒声音，落进土里</div>
+  </div>
+  <div class="show-foot" id="showFoot">
+    <div class="show-title" id="showTitle">这棵树</div>
+    <div class="show-sub" id="showSub"></div>
+    <div class="show-track"><i id="showPbar"></i></div>
+    <div class="show-hint" id="showHint">拖动光环，看它在不同时刻的样子</div>
+  </div>
+  <!-- 年轮：Three.js 圆形交互层，拖动可回看生长的任意时刻 -->
+  <canvas id="ringCv" class="ring-cv" aria-hidden="true"></canvas>
+  <div class="show-end" id="showEnd" hidden>
+    <button class="show-again" id="showAgain">↺ 再看一次</button>
+  </div>
+</div>
+
+<div class="atmosphere" aria-hidden="true"></div>
+<div class="grain"></div>
+
+<header class="top">
+  <div class="brand">树与音乐</div>
+  <div class="sub" id="treeLabel">还没放树进来</div>
+  <div class="sub place" id="treePlace" hidden></div>
+</header>
+
+<!-- 左侧竖排「数据感」小字 -->
+<div class="meta" id="meta" aria-hidden="true"></div>
+
+<!-- 树旁注记：文字不是说明页，是构图的一半 -->
+<aside class="reading" id="reading" aria-label="阅读这棵树">
+  <div class="reading-kicker">NATURE, AS A LIVING SYSTEM <span>VOL. 01</span></div>
+  <h1>树，是一座<br><em>活的系统。</em></h1>
+  <p class="reading-intro" id="readingText">光落进叶脉，水沿着木质部向上。每一次分叉，都在用更少的能量，抵达更多的地方。</p>
+  <nav class="reading-tabs" aria-label="树的三种系统">
+    <button class="on" data-system="energy"><i>01</i>能量转化</button>
+    <button data-system="signal"><i>02</i>信息传输</button>
+    <button data-system="climate"><i>03</i>气候调节</button>
+  </nav>
+  <div class="reading-foot">
+    <span id="readingFormula">LIGHT → SUGAR → GROWTH</span>
+    <span>点一枝，听见它的回答</span>
+  </div>
+</aside>
+
+<div class="hotspots" id="hotspots" aria-label="树上的注记">
+  <button class="tree-hotspot" data-system="energy"><span>01</span><b>能量</b></button>
+  <button class="tree-hotspot" data-system="signal"><span>02</span><b>信息</b></button>
+  <button class="tree-hotspot" data-system="climate"><span>03</span><b>气候</b></button>
+</div>
+
+<!-- 空态：只留一句话，整句可点 -->
+<div class="empty" id="empty">
+  <button class="empty-pick" id="pickBtn">
+    <span>把一张树的照片放进来</span>
+    <em>它会记住这个地方，并从这里长起来</em>
+  </button>
+</div>
+
+<!-- 处理中 -->
+<div class="busy" id="busy" hidden>
+  <div class="bar"><i></i></div>
+  <span id="busyText">正在把这张照片放到它的地方</span>
+</div>
+
+<!-- 底部：拇指区只留主动作；次要项都在上滑的抽屉里 -->
+<div class="dock" id="dock" hidden>
+  <button class="sheet-grab" id="sheetGrab" aria-label="展开调整">
+    <i></i><span>上滑 · 调整</span>
+  </button>
+  <div class="bar-row">
+    <button class="play" id="playBtn"><span id="playIcon">▶</span><span id="playWord">开始听</span></button>
+    <button class="show-launch" id="showBtn" title="看这棵树跟着音乐长出来">✧ 看它生长</button>
+    <button class="globe-link" id="globeLink" hidden>放回地球</button>
+    <button class="mem-btn" id="memBtn" hidden>记忆 <b id="memCount">1</b></button>
+    <span class="bar-spacer"></span>
+    <button class="tune-btn" id="tuneBtn" aria-expanded="false" aria-controls="tunePanel">调整<i>⌄</i></button>
+  </div>
+</div>
+
+<!-- 第二层：上滑抽屉，默认关着 -->
+<section class="tune" id="tunePanel" hidden aria-label="调整">
+  <div class="tune-head">
+    <b>调整</b>
+    <span class="theme-state" id="tierState">第 1 档</span>
+    <button class="tune-x" id="tuneClose" aria-label="收起">×</button>
+  </div>
+
+  <div class="tune-row">
+    <span class="row-label">色调</span>
+    <div class="tint-dots" role="group" aria-label="昼夜与色调">
+      <button class="on" data-tint="gold" title="乌木与多阶香槟金" aria-label="夜·金"></button>
+      <button data-tint="day" title="白瓷与苔藓绿" aria-label="昼·绿"></button>
+      <button data-tint="ink" title="钴蓝与金色叶群" aria-label="夜·蓝"></button>
+    </div>
+    <span class="bar-spacer"></span>
+    <span class="weather-line" id="airState">微风</span>
+  </div>
+
+  <div class="tune-row">
+    <span class="row-label">形态</span>
+    <div class="seg species-seg" aria-label="树的形态">
+      <button class="on" data-species="oak">乔木</button>
+      <button data-species="ginkgo">银杏</button>
+      <button data-species="bush">灌木</button>
+      <button data-species="willow">垂柳</button>
+      <button data-species="palm">棕榈</button>
+      <button data-species="conifer">针叶</button>
+      <button data-species="banyan">榕树</button>
+      <button data-species="blossom">花树</button>
+    </div>
+  </div>
+
+  <div class="tune-row engine-row">
+    <span class="row-label">曲风</span>
+    <div class="seg engine-seg" id="engineSeg" aria-label="这棵树的曲风">
+      <button data-engine="pluck">拨弦</button>
+      <button data-engine="minimal">循环</button>
+      <button data-engine="bell">钟琴</button>
+    </div>
+    <span class="engine-mood" id="engineMood"></span>
+  </div>
+
+  <div class="tune-row mem-row" id="memRow" hidden>
+    <span class="row-label">记忆</span>
+    <div class="mem-strip" id="memStrip"></div>
+  </div>
+
+  <div class="tune-row">
+    <span class="row-label">画面</span>
+    <button class="ghost tiny on" id="leavesBtn" aria-pressed="true">叶</button>
+    <button class="ghost tiny on" id="waterBtn" aria-pressed="true">水纹</button>
+    <button class="ghost tiny" id="readingBtn" aria-pressed="false">读树</button>
+    <span class="row-sep"></span>
+    <button class="ghost tiny" id="growToggle" aria-pressed="false" title="用歌曲频谱驱动光，不改树的形态">跟歌亮一下</button>
+    <span class="bar-spacer"></span>
+    <button class="ghost tiny" id="resetBtn">换一张</button>
+  </div>
+
+  <details class="easter">
+    <summary>彩蛋 · 给它一首歌 <em>可选，不在主路径</em></summary>
+    <div class="tune-row song-row">
+      <div class="drop" id="audioDrop">拖一首歌进来，看它跟着亮</div>
+      <span class="theme-state" id="themeState">还没有主题曲</span>
+      <button class="ghost tiny" id="themePick">抽主题曲</button>
+      <button class="ghost tiny" id="themeOpen">旋律线</button>
+    </div>
+  </details>
+
+  <div class="tune-row song-row record-row">
+    <span class="row-label">唱片</span>
+    <span class="theme-state" id="recordState">还没有唱片</span>
+    <button class="ghost tiny" id="recordOpen">看这张唱片</button>
+  </div>
+</section>
+
+<!-- 树页也能调出这个地点的原图 -->
+<div class="mem-view" id="memView" hidden>
+  <button class="mem-close" id="memClose" aria-label="关掉">×</button>
+  <img id="memImg" alt="这个地点的一张照片">
+  <div class="mem-meta" id="memMeta"></div>
+</div>
+
+<!-- 这棵树的主题曲：一条旋律，不改变树的形状与它自己的音景 -->
+<section class="melody" id="melodyPanel" hidden aria-label="这棵树的主题曲">
+  <header class="melody-head">
+    <b>这棵树的主题曲</b>
+    <span id="melodyState">还没有主题曲</span>
+    <button class="melody-x" id="melodyClose" aria-label="收起">×</button>
+  </header>
+  <canvas id="melodyCanvas"></canvas>
+  <p class="melody-hint" id="melodyHint">选一首歌，抽出它的主旋律；听不清的段落会留空并标出来。</p>
+  <div class="melody-foot">
+    <button class="ghost tiny" id="melodyPick">选一首歌</button>
+    <button class="ghost tiny" id="melodySelBtn" hidden>只抽这一段</button>
+    <button class="ghost tiny" id="melodyPlay">点亮播放</button>
+  </div>
+</section>
+
+<!-- 这棵树的一张唱片：封面 + 旋律 + 歌名 + 地点 + 日期，可导出成图 -->
+<section class="record" id="recordPanel" hidden aria-label="这棵树的唱片">
+  <header class="record-head">
+    <b>这棵树的唱片</b>
+    <span id="recordDate"></span>
+    <button class="record-x" id="recordClose" aria-label="收起">×</button>
+  </header>
+  <div class="record-cover" id="recordCoverWrap">
+    <img id="recordCover" alt="唱片封面" hidden>
+  </div>
+  <div class="record-title" id="recordTitle" title="双击可改名">（给它一首歌，就有歌名）</div>
+  <div class="record-sub" id="recordSub"></div>
+  <div class="record-song" id="recordSong" hidden></div>
+  <canvas id="recordMelody" hidden></canvas>
+  <p class="record-hint">把「照片 / 这棵树 + 那天的旋律」存成一张卡；导出来就是一张纪念海报。</p>
+  <div class="record-foot">
+    <button class="ghost tiny" id="recordSave">存成唱片</button>
+    <button class="ghost tiny" id="recordExport">导出成图</button>
+  </div>
+</section>
+
+<input type="file" id="fileImg" accept="image/*" hidden>
+<input type="file" id="fileAudio" accept="audio/*" hidden>
+<input type="file" id="fileTheme" accept="audio/*" hidden>
+
+<script src="exif.js"></script>
+<script src="data/species.js"></script>
+<script src="forms.js"></script>
+<script src="tree-sample.js"></script>
+<script src="melody.js"></script>
+<script src="app.js"></script>
+<script type="module" src="show-ring.js"></script>
+</body>
+</html>
