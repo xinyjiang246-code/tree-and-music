@@ -1,6 +1,10 @@
 # 树与音乐
 
-> **Status: WIP** — 「照片 → 听见它」主链路完整可跑；「落回地方 → 长成一片」两个阶段是原型状态。
+> **Status: Work in Progress · 仍在进行中**
+>
+> An unfinished prototype. The "photo → hear it" path works end to end; "return to a place" and "grow into a grove" are still early-stage experiments.
+>
+> 一个仍在开发中的原型。「照片 → 听见它」主链路完整可跑，「落回地方 → 长成一片」两个阶段还处在实验阶段。
 
 一张树的照片，变成一段可以听的东西。
 
